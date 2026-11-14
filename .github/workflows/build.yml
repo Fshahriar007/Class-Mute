@@ -1,0 +1,35 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Arrange files
+        run: |
+          mkdir -p src/main/java/com/example/classmute
+          mv *.kt src/main/java/com/example/classmute/
+          mv AndroidManifest.xml src/main/AndroidManifest.xml
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Build debug APK
+        run: gradle assembleDebug --no-daemon -Pandroid.useAndroidX=true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ClassMute-APK
+          path: build/outputs/apk/debug/*.apk
+          
